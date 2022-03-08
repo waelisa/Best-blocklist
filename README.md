@@ -10,3 +10,5 @@ P2P file https://github.com/waelisa/Best-blocklist/raw/main/wael.list.p2p
 DAT file https://github.com/waelisa/Best-blocklist/raw/main/wael.list.dat
 
 TXT file https://github.com/waelisa/Best-blocklist/raw/main/wael.list.txt
+
+[Donate link – PayPal](https://www.paypal.me/WaelIsa)
