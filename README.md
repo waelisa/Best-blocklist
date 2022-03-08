@@ -5,8 +5,8 @@ Here my safe list, Only ban bad peer and some copyright ips, other blacklist ban
 
 The file in this link will be updated
 
-P2P file https://www.wael.name/wael.list.p2p
+P2P file https://github.com/waelisa/Best-blocklist/raw/main/wael.list.p2p
 
-DAT file https://www.wael.name/wael.list.dat
+DAT file https://github.com/waelisa/Best-blocklist/raw/main/wael.list.dat
 
-TXT file https://www.wael.name/wael.list.txt
+TXT file https://github.com/waelisa/Best-blocklist/raw/main/wael.list.txt
