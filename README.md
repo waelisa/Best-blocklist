@@ -1,16 +1,16 @@
-# Best-blocklist
-Looking for a nice and complete blocklist for torrent sonftware can be a pain, especially if you’re not sure of which one to pick. In fact there are a ton of lists all for different purposes and no one will give you complete bad-peer protection since one will shield your client from spammers, one from the US Government [really?] and no one from all those things combined.
+# Best Blocklist
+Looking for a nice and complete blocklist for torrent software can be a pain, especially if you’re not sure which one to pick. In fact, there are a ton of lists all for different purposes, and none seem to provide complete bad-peer protection.
 
-Here my safe list, Only ban bad peer and some copyright ips, other blacklist ban many good ips for seedbox.
+Here is my black list! It only bans bad peer and some copyright IPs. Other blacklists ban many good IPs for the seedbox.
 
-The file in this link will be updated
+The files linked below are maintained.
 
-P2P-ZIP file https://github.com/waelisa/Best-blocklist/raw/main/wael.list.p2p.zip
+`P2P-ZIP`: https://github.com/waelisa/Best-blocklist/raw/main/wael.list.p2p.zip
 
-P2P file https://github.com/waelisa/Best-blocklist/raw/main/wael.list.p2p
+`P2P`: https://github.com/waelisa/Best-blocklist/raw/main/wael.list.p2p
 
-DAT file https://github.com/waelisa/Best-blocklist/raw/main/wael.list.dat
+`DAT`: https://github.com/waelisa/Best-blocklist/raw/main/wael.list.dat
 
-TXT file https://github.com/waelisa/Best-blocklist/raw/main/wael.list.txt
+`TXT`: https://github.com/waelisa/Best-blocklist/raw/main/wael.list.txt
 
-[Donate link – PayPal](https://www.paypal.me/WaelIsa)
+[Donate – PayPal](https://www.paypal.me/WaelIsa)
