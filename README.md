@@ -31,9 +31,14 @@ chmod +x Blocklist-builder.sh
 
 You can run it simply to build the list, or use the --install flag to ensure your system has all the required tools.
 
-
-# Standard build ./Blocklist-builder.sh # Build + Install missing dependencies (zip, curl, etc.) sudo ./Blocklist-builder.sh --install
-
+# Standard build
+```bash
+./Blocklist-builder.sh 
+```
+# Build + Install missing dependencies (zip, curl, etc.) 
+```bash
+sudo ./Blocklist-builder.sh --install
+```
 ## **⚙️ Advanced Usage**
 
 Plaintext
