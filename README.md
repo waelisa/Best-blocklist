@@ -20,21 +20,17 @@ My list focuses on what matters: **Banning bad peers and known copyright-trollin
 
 ### **1. Clone the repository**
 
-Bash
-
-git clone https://github.com/waelisa/Best-blocklist.git cd Best-blocklist
-
+```bash
+git clone https://github.com/waelisa/Best-blocklist.git && cd Best-blocklist
+```
 ### **2. Make the script executable**
-
-Bash
-
+```bash
 chmod +x Blocklist-builder.sh
-
+```
 ### **3. Run the Builder**
 
 You can run it simply to build the list, or use the --install flag to ensure your system has all the required tools.
 
-Bash
 
 # Standard build ./Blocklist-builder.sh # Build + Install missing dependencies (zip, curl, etc.) sudo ./Blocklist-builder.sh --install
 
@@ -54,10 +50,6 @@ Options:
 
 --no-install Disable auto-dependency installation
 
-## **📂 File Output**
-
-*   **bt_blocklist.p2p**: The raw plaintext list (PeerGuardian format).
-*   **bt_blocklist.zip**: A compressed version for easy sharing and backups.
 
 ## **🤝 Contributing**
 
