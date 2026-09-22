@@ -149,6 +149,7 @@ check_dependencies() {
 
     local missing_deps=()
 
+    command -v file &>/dev/null || missing_deps+=("file")
     command -v curl &>/dev/null || missing_deps+=("curl")
     command -v gunzip &>/dev/null || missing_deps+=("gzip")
     command -v awk &>/dev/null || missing_deps+=("awk")
