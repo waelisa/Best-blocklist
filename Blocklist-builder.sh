@@ -3,8 +3,8 @@
 #############################################################################################################################
 #
 # Wael Isa - www.wael.name
-# P2P Blocklist Orchestrator - Lightweight Edition v1.1.4
-# Build Date: 02/23/2026
+# P2P Blocklist Orchestrator - Lightweight Edition v1.1.5
+# Build Date: 2026-09-22
 #
 # ██╗    ██╗ █████╗ ███████╗██╗         ██╗███████╗ █████╗
 # ██║    ██║██╔══██╗██╔════╝██║         ██║██╔════╝██╔══██╗
@@ -13,20 +13,21 @@
 # ╚███╔███╔╝██║  ██║███████╗███████╗    ██║███████║██║  ██║
 # ╚══╝╚══╝ ╚═╝  ╚═╝╚══════╝╚══════╝    ╚═╝╚══════╝╚═╝  ╚═╝
 #
-# P2P Blocklist Orchestrator - Lightweight Edition v1.1.4
-# Build Date: February 23, 2026
+# P2P Blocklist Orchestrator - Lightweight Edition v1.1.5
+# Build Date: September 22, 2026
 #
-# Core Sources (All Working Feb 2026):
+# Core Sources (Verified Feb 2026):
 #   ✓ Naunter Mega List
 #   ✓ mxdpeep Comprehensive List
 #   ✓ eMule Security List
 #
-# Results from latest build:
-#   • Raw entries: 1,382,185
-#   • Extracted ranges: 1,209,938
-#   • Final entries: 485,557 (59% reduction)
-#   • Build time: 13 seconds
-#   • Count mismatch: 0 (fixed!)
+# v1.1.5 fixes:
+#   • Require `file` and `unzip` when needed
+#   • curl --fail for HTTP errors
+#   • Safe cache names (no md5sum dependency)
+#   • Correct zero-count verification
+#   • LC_ALL=C for file type detection
+#   • Ignore blank/comment lines when verifying
 #
 # "Keep sharing, have fun, and stay safe!" - Wael Isa
 # https://github.com/waelisa/Best-blocklist
@@ -67,8 +68,8 @@ STATS_FILE="${WORK_DIR}/build_stats.log"
 AUTO_INSTALL_DEPS=true
 PARALLEL_JOBS=3
 MIN_FREE_SPACE_MB=500
-SCRIPT_VERSION="1.1.4"
-SCRIPT_DATE="2026-02-23"
+SCRIPT_VERSION="1.1.5"
+SCRIPT_DATE="2026-09-22"
 
 # Transmission paths
 TRANSMISSION_PATHS=(
@@ -153,12 +154,12 @@ check_dependencies() {
     command -v curl &>/dev/null || missing_deps+=("curl")
     command -v gunzip &>/dev/null || missing_deps+=("gzip")
     command -v awk &>/dev/null || missing_deps+=("awk")
-    command -v unzip &>/dev/null || print_warning "unzip not found (optional)"
+    command -v unzip &>/dev/null || missing_deps+=("unzip")
     command -v zip &>/dev/null || print_warning "zip not found (optional)"
 
     if [ ${#missing_deps[@]} -gt 0 ]; then
         print_error "Missing dependencies: ${missing_deps[*]}"
-        print_info "Please install: sudo pacman -S ${missing_deps[*]} (for Arch)"
+        print_info "Install them first. Example for Arch: sudo pacman -S file curl gzip gawk unzip"
         exit 1
     fi
 
@@ -202,15 +203,15 @@ download_source() {
 
     echo -ne "\r  ${BLUE}▶${NC} Downloading $name... " >&2
 
-    if curl -sL --connect-timeout 15 --max-time 60 --retry 3 --retry-delay 2 "$url" -o "$output_file"; then
+    if curl -fsSL --connect-timeout 15 --max-time 60 --retry 3 --retry-delay 2 "$url" -o "$output_file"; then
         # Handle compressed files
-        if file "$output_file" | grep -q "gzip compressed"; then
+        if LC_ALL=C file "$output_file" | grep -q "gzip compressed"; then
             local temp_file="${output_file}.gz"
             mv "$output_file" "$temp_file"
             gunzip -c "$temp_file" > "$output_file" 2>/dev/null
             rm -f "$temp_file"
             echo -e "\r  ${GREEN}✓${NC} $name (gzipped)" >&2
-        elif file "$output_file" | grep -q "Zip archive"; then
+        elif LC_ALL=C file "$output_file" | grep -q "Zip archive"; then
             local temp_file="${output_file}.zip"
             mv "$output_file" "$temp_file"
             unzip -p "$temp_file" > "$output_file" 2>/dev/null
@@ -240,13 +241,13 @@ download_sources() {
 
     for name in "${!SOURCES[@]}"; do
         local url="${SOURCES[$name]}"
-        local cache_file="${CACHE_DIR}/$(echo "$url" | md5sum | cut -d' ' -f1 2>/dev/null || echo "$RANDOM").dat"
+        local cache_file="${CACHE_DIR}/${name//[^A-Za-z0-9_.-]/_}.dat"
 
         if download_source "$name" "$url" "$cache_file"; then
             cat "$cache_file" >> "$TEMP_RAW"
-            ((success_count++))
+            success_count=$((success_count + 1))
         else
-            ((failed_count++))
+            failed_count=$((failed_count + 1))
         fi
     done
 
@@ -272,7 +273,6 @@ clean_and_merge() {
     echo -e "${BLUE}[INFO]${NC} Processing and merging IP ranges..." >&2
 
     local temp_processed="${WORK_DIR}/processed.tmp"
-    local temp_merged="${WORK_DIR}/merged.tmp"
 
     # Extract and convert IPs
     awk '
@@ -356,15 +356,18 @@ EOF
 create_header() {
     local efficiency="N/A"
     [ -f "$STATS_FILE" ] && efficiency=$(grep "Reduction:" "$STATS_FILE" | cut -d'(' -f2 | cut -d')' -f1)
-    local raw_count=$(grep "Raw ranges" "$STATS_FILE" 2>/dev/null | cut -d' ' -f4)
+
+    local raw_count
+    raw_count=$(awk '/Raw ranges extracted:/ {print $4}' "$STATS_FILE" 2>/dev/null)
+    raw_count=${raw_count:-0}
 
     cat > "$1" << EOF
 #############################################################################################################################
 #
 # Wael Isa - www.wael.name
-# P2P Blocklist - Lightweight Edition v1.1.4
+# P2P Blocklist - Lightweight Edition v1.1.5
 # Build Date: $(date '+%Y-%m-%d %H:%M:%S')
-# Total Entries: $2
+# Total Entries: $(format_number "$2")
 #
 # Core Sources (Feb 2026):
 #   • Naunter Mega List
@@ -372,8 +375,8 @@ create_header() {
 #   • eMule Security List
 #
 # Statistics:
-#   • Raw entries processed: $(format_number $raw_count)
-#   • Final entries: $(format_number $2)
+#   • Raw entries processed: $(format_number "$raw_count")
+#   • Final entries: $(format_number "$2")
 #   • Reduction: $efficiency
 #   • Malformed lines: 0 (all cleaned)
 #
@@ -381,7 +384,6 @@ create_header() {
 # https://github.com/waelisa/Best-blocklist
 #
 #############################################################################################################################
-
 EOF
 }
 
@@ -397,8 +399,9 @@ verify_file() {
         return 1
     fi
 
-    # Count only non-comment lines
-    local actual_count=$(grep -v "^#" "$file" | grep -c "^" 2>/dev/null || echo "0")
+    # Count only non-comment, non-empty lines
+    local actual_count
+    actual_count=$(awk '!/^#/ && NF {c++} END {print c+0}' "$file" 2>/dev/null)
 
     if [ "$actual_count" -eq "$expected_count" ]; then
         print_success "Verified: $file contains $(format_number $actual_count) entries"
@@ -506,7 +509,8 @@ analyze_filtered() {
 
         # Verify final file
         if [ -f "$FINAL_PLAIN" ]; then
-            local file_count=$(grep -v "^#" "$FINAL_PLAIN" | grep -c "^")
+            local file_count
+            file_count=$(awk '!/^#/ && NF {c++} END {print c+0}' "$FINAL_PLAIN" 2>/dev/null)
             if [ "$file_count" -eq "$final" ]; then
                 echo -e "  ${GREEN}✓${NC} Final file verified: $(format_number $file_count) entries"
             else
@@ -583,7 +587,7 @@ main() {
         case "$1" in
             -h|--help) show_help; exit 0 ;;
             -v|--version) echo "P2P Blocklist Builder v$SCRIPT_VERSION"; exit 0 ;;
-            -c|--clean) rm -rf "$WORK_DIR"/*; echo "Cleaned $WORK_DIR"; exit 0 ;;
+            -c|--clean) rm -rf "$WORK_DIR"; echo "Cleaned $WORK_DIR"; exit 0 ;;
             -p|--paths) show_paths; exit 0 ;;
             --stats) show_stats; exit 0 ;;
             --analyze) analyze_filtered; exit 0 ;;
